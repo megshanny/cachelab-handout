@@ -107,24 +107,21 @@ void accessData(long long addr)
 
     cache_set[i].lru = lru_counter++;
 }
-
 void replayTrace(char *trace_fn)
 {
-    int *v1;
-    char *v2;
     char buf[1000];
     unsigned int len;
-    long long addr; //?
+    long long addr;
+
     FILE *trace_fp = fopen(trace_fn, "r");
     if (!trace_fp)
     {
-        v1 = __errno_location();
-        v2 = strerror(*v1);
-        fprintf(stderr, "%s: %s\n", trace_fn, v2);
+        int errno_val = errno;
+        fprintf(stderr, "%s: %s\n", trace_fn, strerror(errno_val));
         exit(1);
     }
 
-    while (fgets(buf, 1000, trace_fp))
+    while (fgets(buf, sizeof(buf), trace_fp))
     {
         if (buf[1] == 'S' || buf[1] == 'L' || buf[1] == 'M')
         {
@@ -134,9 +131,9 @@ void replayTrace(char *trace_fn)
                 printf("%c %llx,%u ", (unsigned int)buf[1], addr, len);
             }
             accessData(addr);
-            if (buf[1] == 'M') // M访问两次
+            if (buf[1] == 'M')
             {
-                accessData(addr);
+                accessData(addr); // Perform the second access for 'M' type
             }
             if (verbosity)
             {
@@ -146,6 +143,7 @@ void replayTrace(char *trace_fn)
     }
     fclose(trace_fp);
 }
+
 void printUsage(char **argv)
 {
     printf("Usage: %s [-hv] -s <num> -E <num> -b <num> -t <file>\n", *argv);
