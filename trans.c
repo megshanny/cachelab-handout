@@ -75,7 +75,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
         for (i = 0; i < N; i += 8)
             for (j = 0; j < M; j += 8)
             {
-                // 这个循环做两件事：翻转A的左上并放入B的左上，翻转A的右上并放入B的右上
+                // 翻转A的左上并放入B的左上，翻转A的右上并放入B的右上
                 // 这个循环走完后，缓存中剩余什么？B的前4行。
                 for (x = i; x < i + 4; ++x)
                 {
@@ -88,18 +88,18 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
                     x7 = A[x][j + 6];
                     x8 = A[x][j + 7];
 
-                    // 翻转A的左上并放入B的左上
+                    // 翻转A的左上并写到B的左上
                     B[j][x] = x1;
                     B[j + 1][x] = x2;
                     B[j + 2][x] = x3;
                     B[j + 3][x] = x4;
-                    // 翻转A的右上并放入B的右上
+                    // 翻转A的右上并写到B的右上
                     B[j][x + 4] = x5;
                     B[j + 1][x + 4] = x6;
                     B[j + 2][x + 4] = x7;
                     B[j + 3][x + 4] = x8;
                 }
-                // 这个循环做两件事：翻转A左下到B的右上；将B原本的右上移动到右下
+                // 翻转A左下到B的右上；将B原本的右上移动到右下
                 for (y = j; y < j + 4; ++y)
                 {
                     // 读A的左下，采用列读的方式是为了更快将A后四行载入缓存
@@ -124,7 +124,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
                     B[y + 4][i + 2] = x7;
                     B[y + 4][i + 3] = x8;
                 }
-                // 这个循环做一件事：翻转A右下并放到B右下
+                // 翻转A右下并写到B右下
                 for (x = i + 4; x < i + 8; ++x)
                 {
                     x1 = A[x][j + 4];
